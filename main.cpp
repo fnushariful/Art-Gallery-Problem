@@ -4,31 +4,76 @@
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv); /*** Warning! Do not delete this line. Otherwise, QT GUI won't start!! ***/
 
-    int cnt = 0;
-    for( unsigned i = 1; i<=200; i++ ) {
-        unsigned n = i * 10;
-        for (int i = 0; i < 5; i++) {
-            std::cout<<"Polygon creation started"<<std::endl;
+//    unsigned cnt = 0,fails = 0;
+//    for( unsigned i = 100; i<=1000; i+=100  ) {
+//      unsigned n = i;
+//        for (unsigned j = 0; j <5; j++) {
+//            std::cout<<"Polygon creation started"<<std::endl;
+//            Polygon P = generatePolygon(n);
+//            std::cout<<"Polygon creation end "<<std::endl;
+//
+//            std::vector<Point> vertices;
+//            std::vector<Edge> diagonals;
+//
+//            diagonals.reserve(n - 3);
+//            vertices.reserve(n);
+//
+//            std::vector<QColor> vertexColors;
+//            vertexColors.reserve(n);
+//            triangulatePolygon(P, vertices, vertexColors, diagonals);
+//            std::cout <<j <<" "<<n<< " Color result " << isCorrectColoring(P, vertexColors, diagonals) << std::endl;
+//            if (!isCorrectColoring(P, vertexColors, diagonals)) fails++;
+//            //else fails++;
+//            //cnt += isCorrectColoring(P,vertexColors,diagonals);
+////            drawPolygonUsingQT(vertices, vertexColors, diagonals,true);
+//
+//        }
+//    }
+//    std::cout << "Failure(s): " << fails << std::endl;
+//    std::cout << "Total number of runs: " << 10 * 5 << std::endl;
+//    std::cout << "Failure rate: " << (double)fails/50 * 100.0 << " percent.";
+//    std::cout<<"Cnt "<<cnt<<" "<<fails<<std::endl;
+
+//    Polygon P;
+//    P.push_back(Point(361.69, 538.67));
+//    P.push_back(Point(215.77, 402.78));
+//    P.push_back(Point(341.64, 223.44));
+//    P.push_back(Point(216.88, 97.56));
+//    P.push_back(Point(416.77, 153.26));
+////    P.push_back(Point(856.27152, 95.34176));
+////    P.push_back(Point(1327.2593, 542.41825));
+////    P.push_back(Point(913.03169, 563.21629));
+//////    P.push_back(Point(585.46258, 682.80501));
+////
+//        std::vector<Point> polygonVertices;
+//        getPolygonVertices(P, polygonVertices);
+//        std::vector<QColor> vertexColors;
+//        std::vector<Edge> diagonals,diagonals1;
+//        getPolygonVertices(P,polygonVertices);
+////        triangulatePolygon(P,polygonVertices,vertexColors,diagonals);
+//        drawPolygonUsingQT(polygonVertices, vertexColors, diagonals1, false);
+
+
+    unsigned fails = 0;
+    for(unsigned n = 20; n <= 20; n += 100) {
+        std::cout << "n: " << n << "; ";
+        for(unsigned i = 0; i < 1; ++i) {
+            std::cout << "Run " << i + 1 << " ";
             Polygon P = generatePolygon(n);
-            std::cout<<"Polygon creation end "<<std::endl;
-
-            std::vector<Point> vertices;
-            std::vector<Edge> diagonals;
-
-            diagonals.reserve(n - 3);
-            vertices.reserve(n);
-
+            std::vector<Point> polygonVertices;
+            // getPolygonVertices(P, polygonVertices);
             std::vector<QColor> vertexColors;
-            vertexColors.reserve(n);
-            triangulatePolygon(P, vertices, vertexColors, diagonals);
-            std::cout << i <<" "<<n<< " Color result " << isCorrectColoring(P, vertexColors, diagonals) << std::endl;
-            if (isCorrectColoring(P, vertexColors, diagonals)) cnt++;
-            //cnt += isCorrectColoring(P,vertexColors,diagonals);
-            drawPolygonUsingQT(vertices, vertexColors, diagonals,true);
-
+            std::vector<Edge> diagonals;
+            triangulatePolygon(P,polygonVertices,vertexColors,diagonals);
+            drawPolygonUsingQT(polygonVertices, vertexColors, diagonals, true);
+            if( !isCorrectColoring(P, vertexColors, diagonals) )
+                fails++;
         }
+        std::cout << std::endl;
     }
-    std::cout<<"Cnt "<<cnt<<std::endl;
+    std::cout << "Failure(s): " << fails << std::endl;
+    std::cout << "Total number of runs: " << 10 * 5 << std::endl;
+    std::cout << "Failure rate: " << (double)fails/50 * 100.0 << " percent.";
 
     //triangulatePolygon(P,vertices,vertexColors,diagonals);
 

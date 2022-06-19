@@ -35,7 +35,7 @@ inline number_t getAngle(const Point_2 &a, const Point_2 &b, const Point_2 &c) {
 }
 
 
-unsigned getPointIndex(int polygonVerticesLength, int index)
+int getPointIndex(int polygonVerticesLength, int index)
 {
     //std::cout<<index<<" "<<polygonVerticesLength<<std::endl;
     //if( index < 0 ) std::cout<<"true "<<index<<std::endl;
@@ -89,10 +89,56 @@ bool isDiagonalIntersect(Point b, Point c, const std::vector<Point> &verticesOfP
     return false;
 }
 
+// bool intersect(double x1, double y1, double x2,double y2,double x3,double y3,double x4,double y4) {
+//
+//    // Check if none of the lines are of length 0
+//    if ((x1 == x2 && y1 == y2) || (x3 == x4 && y3 == y4)) {
+//        return false;
+//    }
+//
+//    double denominator = ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+//
+//    // Lines are parallel
+//    if (denominator == 0) {
+//        return false;
+//    }
+//
+//    double ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)); // denominator
+//    double ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)); // denominator
+//
+//    // is the intersection along the segments
+//    if (ua < 0 || ua > 1 || ub < 0 || ub > 1) {
+//        return false;
+//    }
+//
+//    // Return a object with the x and y coordinates of the intersection
+////    double x = x1 + ua * (x2 - x1);
+////    double y = y1 + ua * (y2 - y1);
+//
+////    return {x, y}
+//     return true;
+//}
+
+//bool isDiagonalIntersect1(Point b, Point c,const std::vector<Point> &verticesOfP) {
+//    bool result;
+//    for (unsigned i = 0; i < verticesOfP.size() - 1; i++) {
+//        if (b == verticesOfP[i] || c == verticesOfP[i]) continue;
+//        else {
+//            // let result = intersection(b, c, pointSet[i], pointSet[i + 1]);
+//            // let result = get_line_intersection1(b[0],b[1],c[0],c[1],pointSet[i][0],pointSet[i][1],pointSet[i + 1][0],pointSet[i + 1][1]);
+//            result = intersect(b.x(),b.y(),c.x(),c.y(),verticesOfP[i].x(),verticesOfP[i].y(),verticesOfP[i + 1].x(),verticesOfP[i + 1].y());
+//
+////            std::cout<<"Result "<<result<<std::endl;
+//            if( result != false ) return result;
+//        }
+//    }
+//    return result;
+//}
+
 void drawPolygonUsingQT(const std::vector<Point> &polygonVertices,
                         const std::vector<QColor> &vertexColors,
                         const std::vector<Edge> &diagonals, const bool labels) {
-    assert( !polygonVertices.empty() );
+//    assert( !polygonVertices.empty() );
 
     const double pointSize = 4; // adjust this value to change the size of the points
     /***************************************************/
@@ -301,22 +347,20 @@ void colorArtGalleryDFS(unsigned currentTriangle,std::vector<std::vector<unsigne
 
 bool isCorrectColoring(const Polygon &P, const std::vector<QColor> &vertexColors,
                        const std::vector<Edge> &diagonals){
-
+    if( diagonals.size() != P.size() - 3 )
+        return false;
     std::vector<Point> polygonVertices;
     getPolygonVertices(P,polygonVertices);
     auto M = createMapOfPoints(polygonVertices);
-
     for (auto ei = P.edges_begin(); ei != P.edges_end(); ++ei) {
         unsigned p = M[(*ei).start()], q = M[(*ei).end()];
         if( vertexColors[p] == vertexColors[q] )
             return false;
     }
-
     for (auto e : diagonals) {
         if( vertexColors[e.first] == vertexColors[e.second] )
             return false;
     }
-
     return true;
 }
 
@@ -328,6 +372,7 @@ void triangulatePolygon(const Polygon &P, std::vector<Point> &verticesOfP,
     getPolygonVertices(P,verticesOfP); // do not delete, this is needed for drawing
 
 
+//    std::set<Edge> diagonalTmp;
 
     //diagonals.emplace_back(std::make_pair(1,3)); // a dummy diagonal for demo
 
@@ -342,6 +387,7 @@ void triangulatePolygon(const Polygon &P, std::vector<Point> &verticesOfP,
     }
     //point to mapping
 
+//    std::reverse(verticesOfP.begin(),verticesOfP.end());
     mappingUtilities(verticesOfP);
 
     std::vector<unsigned > indexList;
@@ -351,47 +397,68 @@ void triangulatePolygon(const Polygon &P, std::vector<Point> &verticesOfP,
 
     std::vector<Point> triangle;
 
-    while( indexList.size() > 2  )
+    while( indexList.size() > 3 )
     {
 //        std::cout<<"indexList "<<indexList.size()<<std::endl;
-        if( indexList.size() == 3 ) break;
+//        if( indexList.size() == 3 ) break;
         for( int i=0; i<(int) indexList.size(); i++ )
         {
             unsigned vertexA = indexList.at(i);
             unsigned vertexB = indexList.at(getPointIndex((int)indexList.size(),i-1));
             unsigned vertexC = indexList.at(getPointIndex((int)indexList.size(),i+1));
 
-//            std::cout<<vertexA<<" "<<vertexB<<" "<<vertexC<<std::endl;
+            std::cout<<vertexA<<" "<<vertexB<<" "<<vertexC<<std::endl;
 //            std::cout<<IndicesToPoints[vertexA]<<" "<<IndicesToPoints[vertexB]<<" "<<IndicesToPoints[vertexC]<<std::endl;
+//
+            double angleResult = getAngle(verticesOfP.at(vertexA),verticesOfP.at(vertexB),verticesOfP.at(vertexC));
 
-//            double angleResult = getAngle(verticesOfP.at(vertexA),verticesOfP.at(vertexB),verticesOfP.at(vertexC));
-
-
-//            std::cout<<"Angle result "<<angleResult<<std::endl;
-            if( CGAL::orientation(verticesOfP.at(vertexB),verticesOfP.at(vertexA),verticesOfP.at(vertexC)) != CGAL::LEFT_TURN )
+            std::cout<<"Angle result "<<angleResult<<std::endl;
+//            std::cout<<"Orientation "<<CGAL::orientation(verticesOfP.at(vertexB),verticesOfP.at(vertexA),verticesOfP.at(vertexC))<<std::endl;
+//            if( CGAL::orientation(verticesOfP.at(vertexB),verticesOfP.at(vertexA),verticesOfP.at(vertexC)) != CGAL::LEFT_TURN )
+             if( angleResult > 0 )
             {
+//                std::cout<<"Orientation needed "<<CGAL::orientation(verticesOfP.at(vertexB),verticesOfP.at(vertexA),verticesOfP.at(vertexC))<<std::endl;
                 if( !isDiagonalIntersect(verticesOfP.at(vertexB),verticesOfP.at(vertexC),verticesOfP) )
                 {
-
+//                    std::cout<<"Orientation needed "<<CGAL::orientation(verticesOfP.at(vertexB),verticesOfP.at(vertexA),verticesOfP.at(vertexC))<<std::endl;
                     dualGraphUtilities(verticesOfP.at(vertexA),verticesOfP.at(vertexB),verticesOfP.at(vertexC));
+
                     diagonals.emplace_back(std::make_pair(vertexB,vertexC));
+//                    diagonalTmp.insert(std::make_pair(vertexB,vertexC));
                     indexList.erase(std::remove(indexList.begin(), indexList.end(), vertexA), indexList.end());
+                    i--;
                 }
             }
+            if( indexList.size() <= 3 ) break;
+//            for( auto x: indexList ) std::cout<<x<<std::endl;
         }
 //        std::cout<<"Point remaining "<<indexList.size()<<std::endl;
     }
 
     if( indexList.size() == 3 ) {
         dualGraphUtilities(verticesOfP.at(indexList[0]), verticesOfP.at(indexList[1]), verticesOfP.at(indexList[2]));
-        diagonals.emplace_back(std::make_pair(indexList[1], indexList[2]));
-        indexList.erase(std::remove(indexList.begin(), indexList.end(), indexList[0]), indexList.end());
+//        diagonals.emplace_back(std::make_pair(indexList[1], indexList[2]));
+//        indexList.erase(std::remove(indexList.begin(), indexList.end(), indexList[0]), indexList.end());
     }
+
+//    std::cout<<P.size()<<" "<<diagonalTmp.size()<<std::endl;
+//    for( auto x: diagonalTmp ) diagonals.emplace_back(x);
 
     //adjacencyList.reserve(verticesOfP.size()+100);
     std::vector<std::vector<unsigned > > adjacencyList(verticesOfP.size()+10);
 
     dualGraphAdjacencyList(adjacencyList);
+//    std::cout<<"Adjacency List "<<std::endl;
+//    for( int i =0; i<triangleIDNumber; i++ )
+//    {
+//        std::cout<<i<<" ";
+//        for( int j=0; j<adjacencyList[i].size(); j++ )
+//        {
+//            std::cout<<adjacencyList[i][j]<<" ";
+//        }
+//        std::cout<<std::endl;
+//    }
+
 //    for( int i=0; i<P.size(); i++ )
 //    {
 //        std::cout<<i<<" --> ";
@@ -413,8 +480,10 @@ void triangulatePolygon(const Polygon &P, std::vector<Point> &verticesOfP,
 
     colorArtGalleryDFS(0,adjacencyList,visitedTriangle, vertexColorStatus,triangleColorStatus);
 
+
     for( unsigned i = 0; i<verticesOfP.size(); i++ )
     {
+//        std::cout<<"vertexColorStatus "<<vertexColorStatus[i]<<std::endl;
         if( vertexColorStatus[i] == 1 ) vertexColors.emplace_back(Qt::red);
         else if(vertexColorStatus[i] == 2 ) vertexColors.emplace_back(Qt::darkGreen);
         else if( vertexColorStatus[i] == 3 ) vertexColors.emplace_back(Qt::darkBlue);
@@ -436,6 +505,8 @@ void triangulatePolygon(const Polygon &P, std::vector<Point> &verticesOfP,
     triangleID.clear();
     PointToIndex.clear();
     IndicesToPoints.clear();
+    std::cout<<"diagonal size "<<diagonals.size()<<std::endl;
+//    assert(diagonals.size() == P.size()-3);
 }
 
 #endif //CODE_POLYGONTRIANGULATION_H

@@ -10,6 +10,7 @@
 
 #include <CGAL/Simple_cartesian.h>
 #include <CGAL/point_generators_2.h>
+#include <CGAL/random_convex_set_2.h>
 #include <CGAL/Timer.h>
 #include <CGAL/random_polygon_2.h>
 #include <CGAL/Polygon_2.h>
@@ -27,6 +28,12 @@ void generatePointsInsideASquare(const unsigned n, const double sizeOfSquare, st
     typedef CGAL::Random_points_in_square_2< K::Point_2, CGAL::Creator_uniform_2< double, K::Point_2 > > Point_generator;
     Point_generator g(sizeOfSquare/2);
     std::copy_n(g, n, back_inserter(P));
+}
+
+void generateConvexPointSetInsideASquare(const unsigned n, const double sizeOfSquare, std::vector<Point> &P) {
+    assert(P.size() == 0);
+    typedef CGAL::Random_points_in_square_2<Point, CGAL::Creator_uniform_2< double, Point > > pg;
+    CGAL::random_convex_set_2( n, std::back_inserter(P), pg( sizeOfSquare));
 }
 
 std::unordered_map<Point,unsigned> createMapOfPoints(const std::vector<Point> &P) {
